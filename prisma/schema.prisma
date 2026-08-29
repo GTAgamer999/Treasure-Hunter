@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Stage {
+  WELCOME
+  REGISTRATION
+  CLUE_1
+  CLUE_2
+  CLUE_3
+  CLUE_4
+  CLUE_5
+  AWAITING_ADMIN
+  WINNER
+}
+
+enum ProgressStatus {
+  STARTED
+  COMPLETED
+}
+
+enum TeamStatus {
+  ACTIVE
+  AWAITING_ADMIN
+  WINNER
+}
+
+model Team {
+  id           String          @id @default(cuid())
+  teamName     String
+  sessionToken String          @unique
+  currentStage Stage          @default(REGISTRATION)
+  status       TeamStatus      @default(ACTIVE)
+  createdAt    DateTime        @default(now())
+  completedAt  DateTime?
+  members      CrewMember[]
+  progress     StageProgress[]
+  clue2        Clue2Question[]
+  clue3        Clue3Attempt[]
+  clue4        Clue4Message[]
+  clue5        Clue5Question[]
+}
+
+model CrewMember {
+  id     String @id @default(cuid())
+  name   String
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model StageProgress {
+  id          String         @id @default(cuid())
+  teamId      String
+  stage       Stage
+  status      ProgressStatus
+  startedAt   DateTime       @default(now())
+  completedAt DateTime?
+  team        Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Clue2Question {
+  id        String   @id @default(cuid())
+  teamId    String
+  question  String
+  response  String
+  valid     Boolean
+  createdAt DateTime @default(now())
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Clue3Attempt {
+  id        String   @id @default(cuid())
+  teamId    String
+  imageRef  String
+  matched   Boolean
+  createdAt DateTime @default(now())
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Clue4Message {
+  id              String   @id @default(cuid())
+  teamId          String
+  participantText String
+  aiResponse      String
+  createdAt       DateTime @default(now())
+  team            Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Clue5Question {
+  id         String   @id @default(cuid())
+  teamId     String
+  questionId String
+  answer     String
+  correct    Boolean
+  createdAt  DateTime @default(now())
+  team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
