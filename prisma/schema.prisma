@@ -31,19 +31,21 @@ enum TeamStatus {
 }
 
 model Team {
-  id           String          @id @default(cuid())
-  teamName     String
-  sessionToken String          @unique
-  currentStage Stage          @default(REGISTRATION)
-  status       TeamStatus      @default(ACTIVE)
-  createdAt    DateTime        @default(now())
-  completedAt  DateTime?
-  members      CrewMember[]
-  progress     StageProgress[]
-  clue2        Clue2Question[]
-  clue3        Clue3Attempt[]
-  clue4        Clue4Message[]
-  clue5        Clue5Question[]
+  id            String          @id @default(cuid())
+  teamName      String
+  sessionToken  String          @unique
+  currentStage  Stage           @default(REGISTRATION)
+  status        TeamStatus      @default(ACTIVE)
+  createdAt     DateTime        @default(now())
+  completedAt   DateTime?
+  members       CrewMember[]
+  progress      StageProgress[]
+  clue2         Clue2Question[]
+  clue3         Clue3Attempt[]
+  clue4         Clue4Message[]
+  clue4Attempts Clue4Attempt[]
+  clue5         Clue5Question[]
+  clue5Attempts Clue5Attempt[]
 }
 
 model CrewMember {
@@ -91,6 +93,18 @@ model Clue4Message {
   team            Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 }
 
+model Clue4Attempt {
+  id             String   @id @default(cuid())
+  teamId         String
+  questionId     Int
+  choiceId       String
+  correct        Boolean
+  penaltySeconds Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
 model Clue5Question {
   id         String   @id @default(cuid())
   teamId     String
@@ -99,4 +113,15 @@ model Clue5Question {
   correct    Boolean
   createdAt  DateTime @default(now())
   team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Clue5Attempt {
+  id         String   @id @default(cuid())
+  teamId     String
+  questionId Int
+  choiceId   String
+  correct    Boolean
+  createdAt  DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 }
