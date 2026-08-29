@@ -46,6 +46,7 @@ model Team {
   clue4Attempts Clue4Attempt[]
   clue5         Clue5Question[]
   clue5Attempts Clue5Attempt[]
+  adminEvents   AdminEvent[]
 }
 
 model CrewMember {
@@ -122,6 +123,17 @@ model Clue5Attempt {
   choiceId   String
   correct    Boolean
   createdAt  DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model AdminEvent {
+  id        String   @id @default(cuid())
+  teamId    String
+  type      String
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now())
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 }
