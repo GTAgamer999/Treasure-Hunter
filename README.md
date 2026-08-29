@@ -15,7 +15,7 @@ Create `.env` from `.env.example` and keep secrets private.
 
 Set unique random values for QR2_TOKEN through QR5_TOKEN. The physical QR codes will use the corresponding scanner URL. Do not publish the token values separately.
 
-Current flow: Welcome → Story → Registration → Clue 1 → QR scanner → Clue 2.
+Current flow: Welcome → Story → Registration → Clue 1 → Clue 2 → Clue 3 → Clue 4 → Clue 5. Admin controlled.
 
 The QR API verifies the logged-in team's current stage before advancing it and records stage timestamps in PostgreSQL.
 
