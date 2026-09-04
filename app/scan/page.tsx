@@ -1,3 +1,4 @@
+"use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -15,21 +16,27 @@ function ScanPageContent() {
     setBusy(true);
     setStatus("Verifying your crew's progress...");
 
-    const res = await fetch("/api/qr/scan", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    });
+    try {
+      const res = await fetch("/api/qr/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      setStatus(data.error ?? "QR code rejected.");
+      if (!res.ok) {
+        setStatus(data.error ?? "QR code rejected.");
+        setBusy(false);
+        return;
+      }
+
+      router.push(`/clue/${data.nextStage.replace("CLUE_", "")}`);
+    } catch (error) {
+      console.error(error);
+      setStatus("Something went wrong. Please try again.");
       setBusy(false);
-      return;
     }
-
-    router.push(`/clue/${data.nextStage.replace("CLUE_", "")}`);
   }
 
   useEffect(() => {
@@ -52,7 +59,8 @@ function ScanPageContent() {
 
         const reader = new BrowserQRCodeReader();
 
-        const devices = await BrowserQRCodeReader.listVideoInputDevices();
+        const devices =
+          await BrowserQRCodeReader.listVideoInputDevices();
 
         if (!devices.length) {
           throw new Error("No camera found.");
@@ -71,6 +79,7 @@ function ScanPageContent() {
         );
       } catch (error) {
         console.error(error);
+
         setStatus(
           "Camera access is unavailable. Allow camera access and refresh this page."
         );
@@ -103,7 +112,9 @@ function ScanPageContent() {
           />
         </div>
 
-        <p className="mt-5 text-zinc-300">{status}</p>
+        <p className="mt-5 text-zinc-300">
+          {status}
+        </p>
       </section>
     </div>
   );
@@ -115,13 +126,9 @@ export default function ScanPage() {
       fallback={
         <div className="hunt-shell">
           <section className="panel text-center">
-            <div className="eyebrow">QR Gateway</div>
-
-            <h1 className="text-4xl font-black mt-2 mb-4">
-              SCAN THE NEXT CLUE
-            </h1>
-
-            <p className="mt-5 text-zinc-300">Loading scanner...</p>
+            <p className="mt-5 text-zinc-300">
+              Loading scanner...
+            </p>
           </section>
         </div>
       }
@@ -130,4 +137,3 @@ export default function ScanPage() {
     </Suspense>
   );
 }
-
